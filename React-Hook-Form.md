@@ -131,3 +131,107 @@ const onSubmit = (data: FormValues) =>{
 //...
 
 ```
+## Form validation
+The built in validation is only onSubmit validation, and it just applies when form is submitted.
+It supports various HTML validation rules like: _required_ _minLength_ _maxLength_ _min_ _max_ _pattern_
+
+- Add **noValidate** to "form" element,
+- Pass validation as a second object to the register attribute
+
+```typescript
+//Adding "noValidate" to the form
+<form onSubmit={handleSubmit(onSubmit)} noValidate >
+    <input
+    type='text'
+    id='username'
+//Adding "required" and error message to the second argument of register function
+    {...register("username"),{
+        required:{
+            value:true, 
+            message:"Username is Required"
+            }
+        }}
+    />
+```
+### _pattern_ validation
+It's like a regular validation except it accepts a pattern (for example regex expression) ans message.
+
+```typescript
+//Adding "noValidate" to the form
+<form onSubmit={handleSubmit(onSubmit)} noValidate >
+    <input
+    type='text'
+    id='username'
+//Adding "required" and error message to the second argument of register function
+    {...register("password"),{
+        patter:{
+            value:/^[a-zA-Z0-9] //...
+            message:"Invalid email format"
+        }
+    }}
+    />
+```
+## Displaying Error message
+
+_formState_ object inside "form" contains information like _error object_
+we destructure **errors** from formState, It contains all the errors of all the field which have form validation.
+```typescript
+const form = useForm<FormValues>()
+const {formState} = form;
+
+const {errors} = formState;
+
+//..
+//Each field which has form validation has an error object
+<p>{errors.username?.message}</p>
+```
+
+### Custom validation
+What if for example we want to user not allowed to insert specific email like "admin@example.com" to the input?
+To add a custom validation we add a key-value to the options object, passed to into the register function, the key is called _validate_ and this is going to be a function which automatically receives the fieldValue as an argument 
+
+```typescript
+<form onSubmit={handleSubmit(onSubmit)} noValidate >
+    <input
+    type='text'
+    id='username'
+    {...register("password"),{
+        patter:{
+            value:/^[a-zA-Z0-9] //...
+            message:"Invalid email format"
+        }
+    },
+    validate:(fieldValue)=>{
+        return (
+            //If it was true, show the error message
+            fieldValue !== "admin@example.com" || "Enter a different email address"
+        )
+    }}
+    />
+```
+If we want to add more custom validations, we create an object for _validate_ , ans pass a key for each custom error
+
+```typescript
+<form onSubmit={handleSubmit(onSubmit)} noValidate >
+    <input
+    type='text'
+    id='username'
+    {...register("password"),{
+        patter:{
+            value:/^[a-zA-Z0-9] //...
+            message:"Invalid email format"
+        }
+    },
+    validate:{
+        notAdmin:(fieldValue)=>{
+        return (
+            fieldValue !== "admin@example.com" || "Enter a different email address"
+        )
+    },
+    notBlackListed:(fieldValue)=>{
+        return (
+            !fieldValue.endWith("baddomain.com") || "This domain is not supported"
+        )
+    }}
+    />
+```
