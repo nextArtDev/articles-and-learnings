@@ -56,12 +56,253 @@ Most animations will be performed with the motion component and the animate prop
 <motion.div  />
 ```
 
-### animate
-When any value in animate changes, the component will automatically animate to the updated target.
+# Animation
+There are multiple ways to animate in Framer Motion, scaling to the complexity of your needs.
 
+## Simple animations
+
+Most animations will be performed with the motion component and the animate prop.
+When any value in animate changes, the component will automatically animate to the updated target.
 ```typescript
 <motion.div animate={{ x: 100 }} />
 ```
+
+## Enter animations
+
+When a motion component is first created, it'll automatically animate to the values in animate if they're different from those defined in style or initial. You can set the initial prop to false to disable enter animations.
+```typescript
+<motion.div animate={{ x: 100 }} initial={false} />
+```
+
+## Exit animations
+
+In React, when a component is removed from the tree, it's removed instantly. Framer Motion provides the AnimatePresence component to keep components in the DOM while they perform an exit animation.
+
+```typescript
+<AnimatePresence>
+  {isVisible && (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+    />
+  )}
+</AnimatePresence>
+```
+
+## Keyframes
+
+Values in animate can also be set as a series of keyframes. This will animate through each value in sequence.
+We can use the current value as the initial keyframe by passing a wildcard keyframe, null.
+This way, if a keyframes animation starts while the value is currently animating, the transition will be more natural. It also reduces duplication in our code.
+Each keyframe will be spaced evenly throughout the animaton. You can override this by setting the times option via transition.
+
+```typescript
+<motion.circle
+  cx={500}
+  animate={{ cx: [null, 100, 200] }}
+  transition={{ duration: 3, times: [0, 0.2, 1] }}
+/>
+```
+
+## Gesture animations
+
+Framer Motion has shortcuts for animating to a set of values when gestures start, like hover, tap, drag, focus and inView:
+
+```typescript
+<motion.button
+  initial={{ opacity: 0.6 }}
+  whileHover={{
+    scale: 1.2,
+    transition: { duration: 1 },
+  }}
+  whileTap={{ scale: 0.9 }}
+  whileInView={{ opacity: 1 }}
+/>
+```
+
+## Variants
+
+Setting animate as an object is useful for simple, single-component animations. But sometimes we want to create animations that propagate throughout the DOM, and orchestrate those animations in a declarative way. We can do so with variants.
+
+- Variants are sets of pre-defined targets.
+- They're passed into motion components via the variants prop.
+- These variants can be referred to by label, wherever you can define an animation object.
+
+```typescript
+const variants = {
+  visible: { opacity: 1 },
+  hidden: { opacity: 0 },
+}
+
+<motion.div
+  initial="hidden"
+  animate="visible"
+  variants={variants}
+/>
+```
+
+## Propagation
+
+If a motion component has children, changes in variant will flow down through the component hierarchy until a child component defines its own animate property.
+```typescript
+const list = {
+  visible: { opacity: 1 },
+  hidden: { opacity: 0 },
+}
+
+const item = {
+  visible: { opacity: 1, x: 0 },
+  hidden: { opacity: 0, x: -100 },
+}
+
+return (
+  <motion.ul
+    initial="hidden"
+    animate="visible"
+    variants={list}
+  >
+    <motion.li variants={item} />
+    <motion.li variants={item} />
+    <motion.li variants={item} />
+  </motion.ul>
+)
+```
+
+## Orchestration
+
+By default, all these animations will start simultaneously. But by using variants, we gain access to extra transition props like when, delayChildren, and staggerChildren that can let parents orchestrate the execution of child animations.
+
+```typescript
+const list = {
+  visible: {
+    opacity: 1,
+    transition: {
+      when: "beforeChildren",
+      staggerChildren: 0.3,
+    },
+  },
+  hidden: {
+    opacity: 0,
+    transition: {
+      when: "afterChildren",
+    },
+  },
+}
+```
+
+## Dynamic variants
+
+Each variant can be defined as a function that resolves when a variant is accessed. These variant functions are provided a single argument, which can be set in a component's custom prop.
+
+```typescript
+const variants = {
+  visible: i => ({
+    opacity: 1,
+    transition: {
+      delay: i * 0.3,
+    },
+  }),
+  hidden: { opacity: 0 },
+}
+
+return items.map((item, i) => (
+  <motion.li
+    custom={i}
+    animate="visible"
+    variants={variants}
+  />
+))
+```
+
+## Multiple variants
+
+Props like animate, whileHover etc can define one or more variants by passing a string or an array of strings.
+If variants define the same values, variants appearing later in the array will take precedence over those earlier in the array.
+
+```typescript
+<motion.ul variants={["open", "primary"]} />
+```
+
+## Manual controls
+
+Declarative animations are ideal for most UI interactions. But sometimes we need to orchestrate more complex sequences.
+
+The useAnimate hook can be used to:
+
+- Animate any HTML/SVG element
+- Create complex sequences of animations
+- Control animations with time, speed, play(), pause() and - other playback controls.
+
+```typescript
+const MyComponent = () => {
+  const [scope, animate] = useAnimate()
+  
+  useEffect(() => {
+    const animation = async () => {
+      await animate(scope.current, { x: "100%" })
+      animate("li", { opacity: 1 })
+    }
+    
+    animation()
+  }, [])
+
+  return (
+    <ul ref={scope}>
+      <li />
+      <li />
+      <li />
+    </ul>
+  )
+}
+```
+
+## Animate single values
+
+It's also possible to use useAnimate to animate single values or a single MotionValue.
+
+```typescript
+const [scope, animate]= useAnimate()
+const x = useMotionValue(0)
+
+useEffect(() => {
+  const controls = animate(x, 100, {
+    type: "spring",
+    stiffness: 2000,
+    onComplete: v => {}
+  })
+
+  return controls.stop
+})
+```
+
+## Animate content
+
+We can render the current value of a MotionValue by passing it as a motion component's child.
+
+```typescript
+const count = useMotionValue(0)
+const rounded = useTransform(count, latest => Math.round(latest))
+
+useEffect(() => {
+  const controls = animate(count, 100)
+
+  return controls.stop
+}, [])
+
+return <motion.div>{rounded}</motion.div>
+```
+```typescript
+```
+```typescript
+```
+```typescript
+```
+```typescript
+```
+```typescript
+```
+
 
 # Transition
 By default, Motion will create an appropriate animation for a snappy transition based on the types of value being animated. For instance, physical properties like x or scale will be animated via a spring simulation. Whereas values like opacity or color will be animated with a tween.
