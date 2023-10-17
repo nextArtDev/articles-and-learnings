@@ -1179,9 +1179,200 @@ Scroll-triggered animations are normal animations that start when an element ent
 The whileInView prop can be used to create scroll-triggered animations by defining a set of properties and, optionally, a transition, to animate to when the element is in view.
 
 ```typescript
+<motion.div
+  initial={{ opacity: 0 }}
+  whileInView={{ opacity: 1 }}
+/>
 ```
+
+### whileInView: VariantLabels | TargetAndTransition
+
+Properties or variant label to animate to while the element is in view.
+
+### viewport: ViewportOptions
+
+An object of viewport options that define how the viewport is detected.
+
 ```typescript
+<motion.div
+  initial="hidden"
+  whileInView="visible"
+  viewport={{ once: true }}
+/>
 ```
+
+### onViewportEnter(entry): void
+
+Callback that triggers when the element enters the viewport. Provides the IntersectionObserverEntry with details of the intersection event, or null if the browser doesn't support IntersectionObserver.
+
+## Viewport options
+
+### once: boolean
+
+If true, once the element has entered the viewport it will remain in the whileInView state. No further viewport callbacks will be triggered.
+
+```typescript
+<motion.div
+  initial="hidden"
+  whileInView="visible"
+  viewport={{ once: true }}
+/>
+```
+
+### root: RefObject<Element>
+
+By default, the element will be considered within the viewport when it enters the window viewport.
+
+Pass a ref to both an ancestor element and to viewport.root to use that ancestor element as the measured viewport instead.
+
+```typescript
+function Component() {
+  const scrollRef = useRef(null)
+  
+  return (
+    <div ref={scrollRef} style={{ overflow: "scroll" }}>
+      <motion.div
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ root: scrollRef }}
+      />
+    </div>
+  )
+}
+```
+
+### margin: string
+
+A margin to add to the viewport when detecting whether the element has entered it.
+
+Defaults to "0px". A single value can be used to add a margin on every side, e.g. "200px". Or, multiple values can be defined to assign a margin to each axis in the order of top/right/bottom/left, e.g. "0px -20px 0px 100px".
+
+### amount: "some" | "all" | number
+
+Defaults to "some", this option defines the amount of the element that has to intersect with the viewport in order for it to be considered within view.
+
+# Layout Animation
+
+Create layout and shared layout animations with React and Framer Motion.
+CSS layouts are difficult and expensive to animate.
+
+Animating a style like height between 100px and 500px is conceptually straightforward, but suffers from poor performance because we're triggering the browser layout systems every animation frame.
+
+Sometimes it doesn't even make sense. What does it actually mean to animate justify-content between flex-start and flex-end?
+
+Framer Motion can animate between any CSS layout by using performant transforms instead of the layout system.
+
+For example, this component is animated by switching justify-content between flex-start and flex-end.
+
+To enable Framer Motion's layout animations, we simply set the layout prop of a motion component.
+
+```typescript
+<motion.div layout />
+```
+Any layout change that happens as the result of a re-render will be animated. That could be any combination of:
+
+- Reordering of a list.
+- A style set on the component itself, for example a change in width or position.
+- A change in the parent's layout, e.g. flexbox or grid.
+- Or any other change in the component's layout.
+
+### Scale correction
+
+All layout animations are performed using the transform property, resulting in smooth framerates.
+
+Animating layout using transforms can sometimes visually distort children. To correct this distortion, the first child elements of the element can also be given layout property.
+
+Try switching this component between layouts, with and without setting layout on the pink dot:
+
+Transforms can also distort boxShadow and borderRadius. The motion component will automatically correct this distortion on both props, as long as they're set as motion values.
+
+If you're not animating these values, the easiest way to do this is to set them via style.
+
+```typescript
+<motion.div layout style={{ borderRadius: 20 }} />
+```
+
+### Customising layout animations
+
+Layout animations can be customised using the transition property.
+
+```typescript
+<motion.div layout transition={{ duration: 0.3 }} />
+```
+
+If you want to set a transition specifically for only the layout animation, you can specify a specific layout transition.
+
+```typescript
+<motion.div
+  layout
+  animate={{ opacity: 0.5 }}
+  transition={{
+    opacity: { ease: "linear" },
+    layout: { duration: 0.3 }
+  }}
+/>
+```
+
+## Animating within scroll containers
+
+To animate layout correctly within scrollable elements, these elements must be given the layoutScroll prop.
+
+```typescript
+<motion.div
+  layoutScroll
+  style={{ overflow: "scroll" }}
+/>
+```
+
+## Coordinating layout animations
+
+Layout animations are triggered when a component re-renders and its layout has changed.
+
+```typescript
+function Accordion() {
+  const [isOpen, setOpen] = useState(false)
+  
+  return (
+    <motion.div
+      layout
+      style={{ height: isOpen ? "100px" : "500px" }}
+      onClick={() => setOpen(!isOpen)}
+    />
+  )
+}
+```
+
+But what happens when we have two or more components that don't re-render at the same time, but do affect each other's layout?
+
+When one re-renders, the other won't be able to detect changes to its layout.
+
+We can synchronise layout changes across multiple components by wrapping them in the LayoutGroup component.
+
+```typescript
+import { LayoutGroup } from "framer-motion"
+
+function List() {
+  return (
+    <LayoutGroup>
+      <Accordion />
+      <Accordion />
+    </LayoutGroup>  
+  )
+}
+```
+
+Now, when layout changes are detected in one grouped component, layout animations will happen across all of them. Without any extra re-renders.
+
+## Shared layout animations
+
+When a new component is added that has a layoutId prop that matches an existing component, it will automatically animate out from the old component.
+
+```typescript
+isSelected && <motion.div layoutId="underline" />
+```
+
+If the old component is still mounted when the new component enters, they will automatically crossfade from the old to the new.
+
 ```typescript
 ```
 ```typescript
