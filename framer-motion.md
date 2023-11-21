@@ -1373,8 +1373,46 @@ isSelected && <motion.div layoutId="underline" />
 
 If the old component is still mounted when the new component enters, they will automatically crossfade from the old to the new.
 
+# Motion components
+
+Motion components are DOM primitives optimised for 60fps animation and gestures.
+
+There's a motion component for every HTML and SVG element, for instance motion.div, motion.circle etc.
+
+These work exactly like their static counterparts, but offer props that allow you to:
+
+- Animate
+- Add drag, pan, hover and tap gestures
+- Respond to gestures and elements entering the viewport with animation
+- Deeply animate throughout React trees via variants
+
+And much more.
+
+## Value types
+
+Motion can animate:
+
+- Numbers: 0, 10 etc.
+- Strings containing numbers: "0vh", "10px" etc.
+- Colors: Hex, RGB, HSLA.
+- Complex strings containing multiple numbers and/or colors (ie "10px 0 #000")
+
+When animating to a non-animatable value like "block", this value will be set instantly. By setting this value within transitionEnd, this value will be set at the end of the animation.
+
 ```typescript
+<motion.div
+  animate={{
+    x: 0,
+    backgroundColor: "#000",
+    boxShadow: "10px 10px 0 rgba(0, 0, 0, 0.2)",
+    position: "fixed",
+    transitionEnd: {
+      display: "none",
+    },
+  }}
+/>
 ```
+
 ```typescript
 ```
 ```typescript
