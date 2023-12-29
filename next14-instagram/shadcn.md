@@ -181,3 +181,21 @@ function MoreDropdown() {
 export default MoreDropdown
 
 ```
+
+## AvatarProps from @radix-ui/react-avatar'
+
+If we want to extend our shadcn Avatar component to accept all the useful props of that, we can use _Partial<AvatarProps>_
+
+```typescript
+import { Avatar } from '@/components/ui/avatar'
+import type { AvatarProps } from '@radix-ui/react-avatar'
+ 
+
+type Props = Partial<AvatarProps> & {
+  user?: any
+  imgUrl?: string
+  name?: string
+}
+
+function UserAvatar({ user, imgUrl, name, ...avatarProps }: Props) { ...// }
+```
