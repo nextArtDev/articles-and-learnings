@@ -199,3 +199,58 @@ type Props = Partial<AvatarProps> & {
 
 function UserAvatar({ user, imgUrl, name, ...avatarProps }: Props) { ...// }
 ```
+
+## Create dialog instead of a page
+
+4:50:00
+
+- first we get current page pathname and compare it with the route.
+- then we set _open_ prop of _Dialog_ to this _boolean result_
+- if user _closed the dialog_ we should set _open_ to _false_ and get back to the callback(?) page by using _router.back()_
+
+```typescript
+// getting current path
+  const pathname = usePathname()
+  // compare it with create page path
+  const isCreatePage = pathname === '/social/create'
+  // router to route back when dialog is closed
+  const router = useRouter()
+
+  return ( 
+      <Dialog
+      // open Dialog when we're in this page 
+        open={isCreatePage}
+        // close dialog and go back if close it
+        onOpenChange={(open) => !open && router.back()}
+      >
+```
+
+## closing the Dialog Modal after creating post
+
+- first we define a _closeRef_ for button _const closeRef = useRef<ElementRef<'button'>>(null)_ 
+- then we assign it to _DialogClose_ by _<DialogClose ref={closeRef} asChild>_ 
+- now we close it by _closeRef.current?.click()_ after server action finally: _closeRef.current?.click()_
+
+```typescript
+const closeRef = useRef<ElementRef<'button'>>(null)
+
+     <form
+              onSubmit={form.handleSubmit(async (values) => {
+                try {                
+                } catch (error) {
+                  return toast.error('مشکلی پیش آمده')
+                } finally {
+                  closeRef.current?.click()
+                }
+
+                //...
+
+              <DialogClose ref={closeRef} asChild>
+                <Button
+                  className=""
+                  type="submit"
+                  disabled={form.formState.isSubmitting}
+                >
+ 
+              </DialogClose>
+```
