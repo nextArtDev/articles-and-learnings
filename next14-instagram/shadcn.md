@@ -235,22 +235,18 @@ function UserAvatar({ user, imgUrl, name, ...avatarProps }: Props) { ...// }
 const closeRef = useRef<ElementRef<'button'>>(null)
 
      <form
-              onSubmit={form.handleSubmit(async (values) => {
-                try {                
-                } catch (error) {
-                  return toast.error('مشکلی پیش آمده')
-                } finally {
-                  closeRef.current?.click()
-                }
-
-                //...
-
-              <DialogClose ref={closeRef} asChild>
-                <Button
-                  className=""
-                  type="submit"
+      onSubmit={form.handleSubmit(async (values) => {
+          } catch (error) {
+          return toast.error('مشکلی پیش آمده')
+        } finally {
+          closeRef.current?.click()
+        }
+        //...
+      <DialogClose ref={closeRef} asChild>
+        <Button
+          className=""
                   disabled={form.formState.isSubmitting}
-                >
+        >
  
               </DialogClose>
 ```

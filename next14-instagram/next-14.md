@@ -46,3 +46,232 @@ export default async function Home() {
   )
 }
 ```
+
+## onDelete in Prisma
+
+_onDelete: Cascade_ means When we delete user we want to delete every post that created by that user
+
+```TS
+model Post {
+ //...
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String      @map("user_id")
+
+  @@index([userId])
+}
+```
+
+## Best Practices to fetch data from db
+
+Its recommended to create a _lib/data.ts_ file and do all the database operations there.
+
+## noStore()
+
+It equals to _{cache:'no-cache'}_ and its experimental yet.
+
+## Using a text as a submit form button
+
+We hide an input and just use the value of that to pass the payload. for example here we hide input which pass _post.id_ to the _formData_ and just submit button does the deleting action, which its width is full.
+
+```typescript
+ <form
+    action={async (formData) => {
+      await axios.delete('/api/s3-upload', {
+        data: { id: post.id },
+      })
+      const del = await deletePost(formData)
+      toast(del?.message)
+      // console.log(formData.get('id'))
+    }}
+     className="postOption"
+  >
+  // hiding input and just passing post.id from that 
+     <input type="hidden" name="id" value={post.id} />
+
+     <SubmitButton className="text-red-500 font-bold disabled:cursor-not-allowed w-full p-3">
+       حذف پست
+     </SubmitButton>
+  </form>
+
+function SubmitButton({ children, ...props }: Props) {
+  const { pending } = useFormStatus()
+
+  return (
+    <button type="submit" disabled={pending} {...props}>
+      {children}
+    </button>
+  )
+}
+
+```
+
+## formData
+
+Its next js specific and it will pass all the form fields.
+we can access to formData content by using _formData.get('formFieldName')_
+formData Type is _FormData_
+
+```typescript
+
+<form
+    action={async (formData) => {
+      await deletePost(formData)
+    }}   
+  >
+     <input type="hidden" name="id" value={post.id} />
+  </form>
+
+
+  //server side
+  export async function deletePost(formData: FormData) {
+
+  const { id } = DeletePost.parse({
+    id: formData.get('id'),
+  })
+
+```
+
+## parse and safeParse of zod
+
+safeParse returns back just success and error but parse returns back content of data.
+
+```typescript
+// 'use server'
+
+// Here we can destructure id from parse method, but in safeParse we just get back success state
+  const { id } = DeletePost.parse({
+    id: formData.get('id'),
+  })
+```
+
+## Optimistic update
+
+### predicator
+
+first we have to know if the like is for the first time or user wants to remove the like, for that we define a predict function:
+
+```typescript
+function LikeButton({
+  post,
+  userId,
+}: {
+  post: PostWithExtras
+  userId?: string
+}) {
+  const predicate = (like: Like) =>
+    like.userId === userId && like.postId === post.id 
+
+```
+
+### optimistic like
+
+we get _useOptimistic_ that its first element of array is _optimisticLike_ and the second one is inside async function for server action server actin, here: _addOptimisticLike_ server action. the first argument of useOptimistic is a initial likes, and the second one is getting the current state and new ones, and returns an array of current state and new likes.
+**Its recommended to use _finally_ for revalidating path in server side**
+
+```typescript
+ const predicate = (like: Like) =>
+    like.userId === userId && like.postId === post.id
+
+  const [optimisticLikes, addOptimisticLike] = useOptimistic<Like[]>(
+    // the first argument is our existing like
+    post.likes,
+    // first state is an existing state, which is an array of likes, and the second one is the new like
+    // @ts-ignore
+    (state: Like[], newLike: Like) =>
+      // here we check if the like already exists, if it does, we remove it, if it doesn't, we add it
+      state.some(predicate)
+        ? state.filter((like) => like.userId !== userId)
+        : [...state, newLike]
+  )
+
+ <form
+        action={async (formData: FormData) => {
+          const postId = formData.get('postId')
+          // receives all nesseccary fields which prisma like model needs
+          addOptimisticLike({ postId, userId })
+
+          await likePost(postId)
+        }}
+      >
+
+      //...
+
+      {optimisticLikes.length > 0 && (
+        <p className="text-sm font-bold dark:text-white">
+          {optimisticLikes.length}{' '}
+          {/* {optimisticLikes.length === 1 ? 'like' : 'likes'} */}
+          لایک
+        </p>
+      )}
+
+
+      // server side
+export async function likePost(value: FormDataEntryValue | null) {
+  // const userId = await getUserId()
+  const user = await getCurrentUser()
+  if (!user) return
+  const userId = user.id
+
+  const validatedFields = LikeSchema.safeParse({ postId: value })
+
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: 'خطا، لایک ناموفق!',
+    }
+  }
+
+  const { postId } = validatedFields.data
+
+  const post = await prisma.post.findUnique({
+    where: {
+      id: postId,
+    },
+  })
+
+  if (!post) {
+    throw new Error('پست پیدا نشد!')
+  }
+
+  const like = await prisma.like.findUnique({
+    where: {
+      postId_userId: {
+        postId,
+        userId,
+      },
+    },
+  })
+
+  if (like) {
+    try {
+      await prisma.like.delete({
+        where: {
+          postId_userId: {
+            postId,
+            userId,
+          },
+        },
+      })
+      revalidatePath('/social')
+      return { message: 'لایک برداشته شد.' }
+    } catch (error) {
+      return { message: 'خطا در شبکه!' }
+    }
+  }
+
+  try {
+    await prisma.like.create({
+      data: {
+        postId,
+        userId,
+      },
+    })
+    return { message: 'پست لایک شد.' }
+  } catch (error) {
+    return { message: 'خطای شبکه، لطفا دوباره امتحان کنید!' }
+  } finally {
+    revalidatePath('/social')
+  }
+}
+
+```
