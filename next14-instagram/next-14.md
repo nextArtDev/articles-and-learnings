@@ -275,3 +275,48 @@ export async function likePost(value: FormDataEntryValue | null) {
 }
 
 ```
+
+## Link scroll={false}
+
+When we make a Link scroll to false, we dont want to scroll to the top of the page.
+
+```typescript
+ <Link
+          scroll={false}
+          href={`/social/p/${postId}`} 
+           >
+          مشاهده همه {commentsCount} کامنت
+ </Link>
+ 
+```
+
+## useTransition
+
+DOC: useTransition is a React Hook that lets you update the state without blocking the UI.
+
+- The isPending flag that tells you whether there is a pending transition.
+- The startTransition function that lets you mark a state update as a transition.
+
+If some state update causes a component to suspend, that state update should be wrapped in a transition.
+
+@param callback — A synchronous function which causes state updates that can be deferred.
+
+Here we use useTransition to use isPEnding for disabling too.
+
+```typescript
+const [isPending, startTransition] = useTransition()
+
+ <form
+  onSubmit={form.handleSubmit(async (values) => {
+    // copy to immediately reset the form
+    const valuesCopy = { ...values }
+    form.reset()
+
+    // Without startTransition we get an error 
+    startTransition(() => {
+      addOptimisticComment(valuesCopy.body)
+    })
+    await createComment(valuesCopy)
+  })}
+  >
+```

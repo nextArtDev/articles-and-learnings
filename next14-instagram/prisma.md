@@ -42,3 +42,6 @@ model Like {
       })
 
 ```
+
+Here what if some error happens?
+
