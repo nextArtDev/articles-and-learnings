@@ -320,3 +320,13 @@ const [isPending, startTransition] = useTransition()
   })}
   >
 ```
+
+## Intercepting routes
+
+Intercepting routes can be defined with the (..) convention, which is similar to relative path convention ../ but for __segments__ (It means path, which in that parallel routes or any kind of folder structures which do not count routes are not included).
+_Note that the (..) convention is based on route segments, not the file-system._
+
+- (.) to match segments on the same level
+- (..) to match segments one level above
+- (..)(..) to match segments two levels above
+- (...) to match segments from the root app directory
