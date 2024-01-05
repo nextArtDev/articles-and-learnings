@@ -330,3 +330,14 @@ _Note that the (..) convention is based on route segments, not the file-system._
 - (..) to match segments one level above
 - (..)(..) to match segments two levels above
 - (...) to match segments from the root app directory
+
+## Writing time 
+
+```typescript
+<time className="text-[11px]  uppercase text-zinc-500 font-medium">
+              {new Date(post.createdAt).toLocaleDateString('fa-IR', {
+                month: 'long',
+                day: 'numeric',
+              })}
+            </time>
+```
