@@ -250,3 +250,39 @@ const closeRef = useRef<ElementRef<'button'>>(null)
  
               </DialogClose>
 ```
+
+## Hover Card
+
+Is using for showing card when hover, for example a summary of a profile when we hover on a usr name:
+
+```typescript
+<HoverCard>
+// What triggers the card
+   <HoverCardTrigger asChild>
+     <Link
+       className="font-semibold text-sm"
+       href={`/social/${postUsername}`}
+     >
+       {postUsername}
+     </Link>
+   </HoverCardTrigger>
+
+   // content that would be shown when hover
+   <HoverCardContent>
+     <div className="flex items-center gap-x-2">
+       <UserAvatar
+         user={post.user}
+         imgUrl={post.user.image[0].url}
+         name={post.user.name}
+         className="h-14 w-14"
+       />
+       <div>
+         <p className="font-bold">{postUsername}</p>
+         <p className="py-2 text-sm font-medium dark:text-neutral-400">
+           {post.user.role === 'ADMIN' ? 'ادمین' : 'کاربر'}
+         </p>
+       </div>
+     </div>
+   </HoverCardContent>
+ </HoverCard>
+```

@@ -45,3 +45,21 @@ model Like {
 
 Here what if some error happens?
 
+## NOT condition
+
+When we want to get post except the one that we have, we use _NOT_ operand.
+
+```typescript
+export async function fetchPostsByUserId(userId: string, postId?: string) {
+  noStore()
+
+  try {
+    const data = await prisma.post.findMany({
+      where: {
+        userId,
+        NOT: {
+          id: postId,
+        },
+      },
+      //...
+```

@@ -341,3 +341,31 @@ _Note that the (..) convention is based on route segments, not the file-system._
               })}
             </time>
 ```
+
+## disabling comment button when its blank
+
+We do that by one expression _!body.trim().length_
+
+```typescript
+<button
+          disabled={!body.trim().length || isSubmitting}
+          type="submit"
+          className="text-sky-500 text-sm font-semibold hover:text-sky-700 dark:hover:text-white disabled:cursor-not-allowed  dark:disabled:text-slate-500 disabled:text-sky-500/40 disabled:hover:text-sky-500/40 dark:disabled:hover:text-slate-500"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            className="lucide lucide-send-horizontal fill-sky-500 dark:stroke-white stroke-black/70 rotate-180"
+          >
+            <path d="m3 3 3 9-3 9 19-9Z" />
+            <path d="M6 12h16" />
+          </svg>
+        </button>
+```
