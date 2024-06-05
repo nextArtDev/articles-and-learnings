@@ -62,10 +62,62 @@ If you move the range slider you will see the scale of the element change. There
 
 The reason for that is because when using a motion value directly, you are the one in control of the animation. If you call .set(), it will simply update the motion value with the value you give it.
 
-```typescript
-```
+
+## Make it bounce: useSpring
+
+When an animation is tied into a user interaction, it sometimes feels more natural to not have an transition on that animation. That is why out of the box there’s no transition on a useMotionValue value.
+
+For all other cases, we can use the useSpring hook. This hook takes in a motion value and a spring configuration, allowing you to control how this value should change
+
+Taking the example from above – the only thing that changes is we swap up useMotionValue for useSpring. This spring returns a motion value as well, but adds a spring transition on top of it. Even without any custom transition applied, you already notice that it is way more bouncy.
 
 ```typescript
+import { motion, useSpring } from "framer-motion";
+
+const App = () => {
+  const scale = useSpring(1);
+  const onRangeChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
+    scale.set(parseFloat(ev.target.value))
+  }
+
+  return (
+    <div className="flex items-center flex-col gap-8 justify-center min-h-screen">
+      <motion.button
+        className="bg-black text-white px-3 py-2 rounded-md"
+        style={{ scale }}
+      >
+        Scale ⚖️
+      </motion.button>
+      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 p-3 bg-white/10 rounded-xl flex items-center justify-center">
+        <input
+          type="range"
+          min={0.5}
+          max={5}
+          step={0.01}
+          defaultValue={1}
+          onChange={onRangeChange}
+        />
+      </div>
+    </div>
+  );
+};
+```
+
+## Passing a motion value to the spring
+
+It doesn’t stop here. We can pass useSpring a motion value. This way you can create a spring that is based on another motion value. Might sound weird at first, but this will be super useful in the next module.
+
+```typescript
+import { motion, useMotionValue, useSpring} from "framer-motion";
+
+const App = () => {
+  const someMotionVal = useMotionValue(0);
+  const scale = useSpring(someMotionVal);
+
+  return (
+    <motion.div style={{ scale }} />
+  );
+}
 ```
 
 ```typescript
