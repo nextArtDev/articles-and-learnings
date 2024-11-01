@@ -134,6 +134,3 @@ const HamburgerIcon = () => (
 
 export default App;
 ```
-
-```typescript
-```
