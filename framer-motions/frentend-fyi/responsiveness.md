@@ -1,5 +1,37 @@
 # Responsiveness
 
+
+## CSS Variables
+
+CSS Variables are a very powerful recent-ish addition to CSS. They allow you to define a variable in CSS, and then use that as a value for a style property. You can even set this variable as an inline style on an element, and use it on the same element in the CSS property.
+
+This is super powerful if we want to make responsive animations. Mainly because by using CSS variables, we don’t need to know the current breakpoint in JavaScript. We simply set 2 variables (for each breakpoint in CSS), and show the correct variable based on the current breakpoint in CSS.
+
+- On _mobile_: Change the _y position_ and opacity
+- On _desktop_: Change the _x position_ and opacity
+
+```typescript
+<motion.div
+  className="beautiful-drawer"
+  animate={{
+    "--x": "0%",
+    "--y": "0%",
+  }}
+  initial={{
+    "--x": "-100%",
+    "--y": "100%",
+  }}>
+  Beautiful Drawer
+</motion.div>
+
+<motion.div
+  className="max-sm:translate-y-[--y] md:translate-x-[--x] beautiful-drawer">
+</motion.div>
+
+```
+
+-----------------------
+
 ## Responsiveness without media queries
 
 examples:
