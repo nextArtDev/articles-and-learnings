@@ -151,7 +151,7 @@ Besides using the start, center and end values (which I by far use the most!), t
 - Percentage: Similar to the numbers between 0 and 1, but then as percentage values. For example: ["50% 50%", "0% 100%"]
 - Viewport units: Viewport units in either vw or vh. For example: ["50vw 50vw", "0vh 100vh"]
 
-### axis (Important)
+### axis (Important for x-scroll )
 
 Allowing you to use the hook for either a vertical or horizontal scroll.
 
