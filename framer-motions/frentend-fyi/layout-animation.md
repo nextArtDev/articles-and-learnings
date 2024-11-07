@@ -78,3 +78,39 @@ const SendHorizontal = () => (
 
 export default App;
 ```
+
+## layoutId
+
+To get Framer Motion to __animate between two components__, you need to assign them a layoutId. This layoutId links the components together, telling Framer Motion to animate between them.
+
+Once two (or more) components share the same layoutId, Framer Motion will animate transitions between them—with one important condition: __The components must be displayed or hidden conditionally__.
+
+```typescript
+ const [activeIndex, setActiveIndex] = useState(0);
+
+  return (
+    <div className="grid place-items-center min-h-dvh">
+      <ul className="bg-white rounded-xl flex gap-3 px-3 py-2">
+        <li className="relative px-2 py-1" onClick={() => setActiveIndex(0)}>
+
+        // layoutId to animate between two or more components
+          {activeIndex === 0 && <motion.span layoutId="indicator" className="bg-gray-300 block absolute inset-0 rounded-full" />}
+          <a href="#" className="relative z-10">Home</a>
+        </li>
+        <li className="relative px-2 py-1" onClick={() => setActiveIndex(1)}>
+
+        // layoutId to animate between two or more components
+          {activeIndex === 1 && <motion.span layoutId="indicator" className="bg-gray-300 block absolute inset-0 rounded-full" />}
+          <a href="#" className="relative z-10">About</a>
+        </li>
+        <li className="relative px-2 py-1" onClick={() => setActiveIndex(2)}>
+        
+        // layoutId to animate between two or more components
+          {activeIndex === 2 && <motion.span layoutId="indicator" className="bg-gray-300 block absolute inset-0 rounded-full" />}
+          <a href="#" className="relative z-10">Contact</a>
+        </li>
+      </ul>
+    </div>
+  );
+};
+```
