@@ -104,7 +104,7 @@ Once two (or more) components share the same layoutId, Framer Motion will animat
           <a href="#" className="relative z-10">About</a>
         </li>
         <li className="relative px-2 py-1" onClick={() => setActiveIndex(2)}>
-        
+
         // layoutId to animate between two or more components
           {activeIndex === 2 && <motion.span layoutId="indicator" className="bg-gray-300 block absolute inset-0 rounded-full" />}
           <a href="#" className="relative z-10">Contact</a>
@@ -113,4 +113,13 @@ Once two (or more) components share the same layoutId, Framer Motion will animat
     </div>
   );
 };
+```
+
+## 
+
+Shared layout animations aren’t limited to simple elements like a single indicator. _You can even morph an entire component into another one_!
+we can animate a single list item representing a music album into a full-screen detail view.
+
+```typescript
+
 ```
